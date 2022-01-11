@@ -16,23 +16,31 @@ const CurrencyControl = forwardRef(({
     atmMode,
     decimalSeparator,
     fixedDecimalScale,
+    numberStyle,
     prefix,
+    prefixStyle,
     integerGroupType,
     integerGroupSeparator,
+    onFocus,
+    onBlur,
+    onChange,
+    className,
     ...props
 }, ref) => {
-    const prefixStyle = {
+    const prefixStyles = {
         width: '1.0625rem',
         borderRight: '0rem',
         borderTopRightRadius: '0rem',
         borderBottomRightRadius: '0rem',
         paddingLeft: '0.1875rem',
-        paddingRight: '0rem'
+        paddingRight: '0rem',
+        ...prefixStyle
     };
-    const numberStyle = {
+    const numberStyles = {
         borderTopLeftRadius: '0rem',
         borderBottomLeftRadius: '0rem',
-        paddingLeft: '0.1875rem'
+        paddingLeft: '0.1875rem',
+        ...numberStyle
     };
 
     const [number, setNumber] = useState('');
@@ -50,6 +58,7 @@ const CurrencyControl = forwardRef(({
         if (e.target.value === zero && !atmMode) {
             setNumber('');
         }
+        onFocus(e);
     };
 
     function numberOnBlur(e) {
@@ -62,6 +71,7 @@ const CurrencyControl = forwardRef(({
             integerGroupType: integerGroupType,
             integerGroupSeparator: integerGroupSeparator
         }));
+        onBlur(e);
     };
 
     function numberOnChange(e) {
@@ -89,23 +99,27 @@ const CurrencyControl = forwardRef(({
                 target.selectionEnd = caret;
             })
         }
+        onChange(e);
     };
 
     return (
         <div className='d-flex'>
             <Form.Control
                 disabled
-                style={prefixStyle}
+                style={prefixStyles}
                 value={prefix}
+                className={className}
             />
             <Form.Control
                 ref={ref}
-                style={numberStyle}
+                style={numberStyles}
                 type='text'
                 value={number}
                 onFocus={numberOnFocus}
                 onBlur={numberOnBlur}
                 onChange={numberOnChange}
+                className={className}
+                {...props}
             />
         </div>
     );
