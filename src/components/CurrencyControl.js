@@ -1,7 +1,7 @@
 import React, { forwardRef, useState, useEffect } from 'react';
 import { Form } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import { zeroNumber, formatOnChange, formatOnBlur } from '../util';
+import { nondigitCount, zeroNumber, formatOnChange, formatOnBlur } from '../util';
 
 const defaultProps = {
     atmMode: false,
@@ -66,14 +66,29 @@ const CurrencyControl = forwardRef(({
 
     function numberOnChange(e) {
         e.preventDefault();
+        const target = e.target;
+        const targetLen = target.value.length
 
-        setNumber(formatOnChange(e.target.value, {
+        const newValue = formatOnChange(target.value, {
             atmMode: atmMode,
             decimalSeparator: decimalSeparator,
             fixedDecimalScale: fixedDecimalScale,
             integerGroupType: integerGroupType,
             integerGroupSeparator: integerGroupSeparator
-        }));
+        });
+        setNumber(newValue);
+        
+        let caret = target.selectionStart;
+        if (caret !== targetLen) {
+            // reset caret position if was not at the end of input
+            const prevNdigitCount = nondigitCount(target.value.slice(0, caret));
+            const curNdigitCount = nondigitCount(newValue.slice(0, caret));
+            caret = caret - prevNdigitCount + curNdigitCount;
+            window.requestAnimationFrame(() => {
+                target.selectionStart = caret;
+                target.selectionEnd = caret;
+            })
+        }
     };
 
     return (

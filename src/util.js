@@ -74,6 +74,11 @@ function atmModeNumberFormat(s, decimalSeparator, fixedDecimalScale) {
     return sIntegerPart + decimalSeparator + sDecimalPart;
 };
 
+export function nondigitCount(s) {
+    let matchList = s.match(/\D/g);
+    return (matchList === null) ? 0 : matchList.length;
+};
+
 export function zeroNumber(decimalSeparator, fixedDecimalScale) {
     let zeroNumber = '0';
     if (fixedDecimalScale > 0) {
