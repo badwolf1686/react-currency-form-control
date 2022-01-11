@@ -1,17 +1,34 @@
-function addThousandSeparator(s, {
-    decimalSeparator,
-    thousandScale,
-    thousandSeparator
-}) {
-    s = s.replaceAll(thousandSeparator, '');
-    let startingIntegerIdx = s.indexOf(decimalSeparator)
-    if (startingIntegerIdx === -1) {
-        startingIntegerIdx = s.length
+function validateSeparator(separator) {
+    let dsLen = separator.length;
+    if (dsLen > 1) {
+        return separator.charAt(0);
+    } else if (dsLen === 1) {
+        return separator;
+    } else {
+        return '.';
     }
-    let thousandSeparatorIdx = startingIntegerIdx - thousandScale;
-    while (thousandSeparatorIdx > 0) {
-        s = s.slice(0, thousandSeparatorIdx) + thousandSeparator + s.slice(thousandSeparatorIdx);
-        thousandSeparatorIdx -= thousandScale;
+};
+
+function addintegerGroupSeparator(s, {
+    decimalSeparator,
+    integerGroupType,
+    integerGroupSeparator
+}) {
+    if (integerGroupType !== false) {
+        let integerGroupScale = 3;
+        if (integerGroupType === 'wan') {
+            integerGroupScale = 4;
+        } 
+        s = s.replaceAll(integerGroupSeparator, '');
+        let startingIntegerIdx = s.indexOf(decimalSeparator)
+        if (startingIntegerIdx === -1) {
+            startingIntegerIdx = s.length
+        }
+        let integerGroupSeparatorIdx = startingIntegerIdx - integerGroupScale;
+        while (integerGroupSeparatorIdx > 0) {
+            s = s.slice(0, integerGroupSeparatorIdx) + integerGroupSeparator + s.slice(integerGroupSeparatorIdx);
+            integerGroupSeparatorIdx -= integerGroupScale;
+        }
     }
     return s;
 };
@@ -27,11 +44,11 @@ function regexMatch(s, pattern) {
     return matchList === null ? null : matchList[0];
 };
 
-function isZero(s, thousandSeparator, decimalSeparator) {
+function isZero(s, integerGroupSeparator, decimalSeparator) {
     if (typeof s !== 'string') {
         return true;
     }
-    let match = regexMatch(s, `^-?[0\\${thousandSeparator}\\${decimalSeparator}]*-?$`);
+    let match = regexMatch(s, `^-?[0\\${integerGroupSeparator}\\${decimalSeparator}]*-?$`);
     return match !== null;
 };
 
@@ -39,8 +56,8 @@ function removeLeadingZeros(s) {
     return s.replace(/^0+/, '');
 };
 
-function generalNumberFormat(s, thousandSeparator, decimalSeparator) {
-    let match = regexMatch(s, `-?[\\d\\${thousandSeparator}]*\\${decimalSeparator}?\\d*-?`);
+function generalNumberFormat(s, integerGroupSeparator, decimalSeparator) {
+    let match = regexMatch(s, `-?[\\d\\${integerGroupSeparator}]*\\${decimalSeparator}?\\d*-?`);
     return (match === null) ? '' : match;
 };
 
@@ -69,25 +86,27 @@ export function formatOnChange(s, {
     atmMode,
     decimalSeparator,
     fixedDecimalScale,
-    thousandScale,
-    thousandSeparator
+    integerGroupType,
+    integerGroupSeparator
 }) {
-    s = generalNumberFormat(s, thousandSeparator, decimalSeparator);
+    decimalSeparator = validateSeparator(decimalSeparator);
+    integerGroupSeparator = validateSeparator(integerGroupSeparator);
+    s = generalNumberFormat(s, integerGroupSeparator, decimalSeparator);
     if (isZero(s)) {
         return zeroNumber(decimalSeparator, fixedDecimalScale);
     } else {
         let sIsNegative = isNegative(s);
         s = s.replaceAll('-', '');
-        s = s.replaceAll(thousandSeparator, '');
+        s = s.replaceAll(integerGroupSeparator, '');
 
         if (atmMode) {
             s = atmModeNumberFormat(s, decimalSeparator, fixedDecimalScale);
         }
 
-        s = addThousandSeparator(s, {
+        s = addintegerGroupSeparator(s, {
             decimalSeparator: decimalSeparator,
-            thousandScale: thousandScale,
-            thousandSeparator: thousandSeparator
+            integerGroupType: integerGroupType,
+            integerGroupSeparator: integerGroupSeparator
         });
 
         if (sIsNegative) {
@@ -101,19 +120,21 @@ export function formatOnBlur(s, {
     atmMode,
     decimalSeparator,
     fixedDecimalScale,
-    thousandScale,
-    thousandSeparator
+    integerGroupType,
+    integerGroupSeparator
 }) {
     if (atmMode) {
         // atm mode formats number on type-in
         return s;
     } else {
+        decimalSeparator = validateSeparator(decimalSeparator);
+        integerGroupSeparator = validateSeparator(integerGroupSeparator);
         // check if s is 0 like
-        if (isZero(s, thousandSeparator, decimalSeparator)) {
+        if (isZero(s, integerGroupSeparator, decimalSeparator)) {
             return zeroNumber(decimalSeparator, fixedDecimalScale);
         }
 
-        s = s.replaceAll(thousandSeparator, '');
+        s = s.replaceAll(integerGroupSeparator, '');
         let sLen = s.length;
         if (fixedDecimalScale > -1) {
             let decimalSeparatorIdx = s.indexOf(decimalSeparator);
@@ -138,10 +159,10 @@ export function formatOnBlur(s, {
             }
         }
 
-        return addThousandSeparator(s, {
+        return addintegerGroupSeparator(s, {
             decimalSeparator: decimalSeparator,
-            thousandScale: thousandScale,
-            thousandSeparator: thousandSeparator
+            integerGroupType: integerGroupType,
+            integerGroupSeparator: integerGroupSeparator
         });
     }
 };

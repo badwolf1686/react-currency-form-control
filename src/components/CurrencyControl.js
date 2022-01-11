@@ -8,8 +8,8 @@ const defaultProps = {
     decimalSeparator: '.',
     fixedDecimalScale: 2,
     prefix: '$',
-    thousandScale: 3,
-    thousandSeparator: ','
+    integerGroupType: 'thousand',
+    integerGroupSeparator: ','
 };
 
 const CurrencyControl = forwardRef(({
@@ -17,8 +17,8 @@ const CurrencyControl = forwardRef(({
     decimalSeparator,
     fixedDecimalScale,
     prefix,
-    thousandScale,
-    thousandSeparator,
+    integerGroupType,
+    integerGroupSeparator,
     ...props
 }, ref) => {
     const prefixStyle = {
@@ -59,8 +59,8 @@ const CurrencyControl = forwardRef(({
             atmMode: atmMode,
             decimalSeparator: decimalSeparator,
             fixedDecimalScale: fixedDecimalScale,
-            thousandScale: thousandScale,
-            thousandSeparator: thousandSeparator
+            integerGroupType: integerGroupType,
+            integerGroupSeparator: integerGroupSeparator
         }));
     };
 
@@ -71,8 +71,8 @@ const CurrencyControl = forwardRef(({
             atmMode: atmMode,
             decimalSeparator: decimalSeparator,
             fixedDecimalScale: fixedDecimalScale,
-            thousandScale: thousandScale,
-            thousandSeparator: thousandSeparator
+            integerGroupType: integerGroupType,
+            integerGroupSeparator: integerGroupSeparator
         }));
     };
 
@@ -101,8 +101,11 @@ CurrencyControl.propTypes = {
     decimalSeparator: PropTypes.string,
     fixedDecimalScale: PropTypes.number,
     prefix: PropTypes.string,
-    thousandScale: PropTypes.number,
-    thousandSeparator: PropTypes.string
+    integerGroupType: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ]),
+    integerGroupSeparator: PropTypes.string
 };
 
 CurrencyControl.displayName = 'CurrencyControl';
