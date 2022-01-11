@@ -92,6 +92,10 @@ export function formatOnChange(s, {
     decimalSeparator = validateSeparator(decimalSeparator);
     integerGroupSeparator = validateSeparator(integerGroupSeparator);
     s = generalNumberFormat(s, integerGroupSeparator, decimalSeparator);
+    if (s === '') {
+        // empty value s waiting for type in.
+        return s;
+    }
     if (isZero(s)) {
         return zeroNumber(decimalSeparator, fixedDecimalScale);
     } else {
