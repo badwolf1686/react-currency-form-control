@@ -48,8 +48,8 @@ function isZero(s, integerGroupSeparator, decimalSeparator) {
     if (typeof s !== 'string') {
         return true;
     }
-    let match = regexMatch(s, `^-?[0\\${integerGroupSeparator}\\${decimalSeparator}]*-?$`);
-    return match !== null;
+    let re = new RegExp(`^-?[0\\${integerGroupSeparator}\\${decimalSeparator}]*-?$`);
+    return re.test(s);
 };
 
 function removeLeadingZeros(s) {

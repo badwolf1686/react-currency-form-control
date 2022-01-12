@@ -7,9 +7,13 @@ const defaultProps = {
     atmMode: false,
     decimalSeparator: '.',
     fixedDecimalScale: 2,
+    numberStyle: {},
     prefix: '$',
+    prefixStyle: {},
     integerGroupType: 'thousand',
-    integerGroupSeparator: ','
+    integerGroupSeparator: ',',
+    onValueChange: () => '0',
+    className: ''
 };
 
 const CurrencyControl = forwardRef(({
@@ -21,10 +25,9 @@ const CurrencyControl = forwardRef(({
     prefixStyle,
     integerGroupType,
     integerGroupSeparator,
-    onFocus,
-    onBlur,
-    onChange,
+    onValueChange,
     className,
+    value,
     ...props
 }, ref) => {
     const prefixStyles = {
@@ -46,9 +49,8 @@ const CurrencyControl = forwardRef(({
     const [number, setNumber] = useState('');
 
     useEffect(() => {
-        let zero = zeroNumber(decimalSeparator, fixedDecimalScale)
-        setNumber(zero)
-    }, [decimalSeparator, fixedDecimalScale]);
+        setNumber(value);
+    }, [value]);
 
     function numberOnFocus(e) {
         e.preventDefault();
@@ -58,20 +60,20 @@ const CurrencyControl = forwardRef(({
         if (e.target.value === zero && !atmMode) {
             setNumber('');
         }
-        onFocus(e);
     };
 
     function numberOnBlur(e) {
         e.preventDefault();
 
-        setNumber(formatOnBlur(e.target.value, {
+        const newValue = formatOnBlur(e.target.value, {
             atmMode: atmMode,
             decimalSeparator: decimalSeparator,
             fixedDecimalScale: fixedDecimalScale,
             integerGroupType: integerGroupType,
             integerGroupSeparator: integerGroupSeparator
-        }));
-        onBlur(e);
+        });
+        setNumber(newValue);
+        onValueChange(newValue);
     };
 
     function numberOnChange(e) {
@@ -86,8 +88,7 @@ const CurrencyControl = forwardRef(({
             integerGroupType: integerGroupType,
             integerGroupSeparator: integerGroupSeparator
         });
-        setNumber(newValue);
-        
+
         let caret = target.selectionStart;
         if (caret !== targetLen) {
             // reset caret position if was not at the end of input
@@ -99,7 +100,9 @@ const CurrencyControl = forwardRef(({
                 target.selectionEnd = caret;
             })
         }
-        onChange(e);
+
+        setNumber(newValue);
+        onValueChange(newValue);
     };
 
     return (
@@ -107,19 +110,19 @@ const CurrencyControl = forwardRef(({
             <Form.Control
                 disabled
                 style={prefixStyles}
-                value={prefix}
                 className={className}
+                value={prefix}
             />
             <Form.Control
+                {...props}
                 ref={ref}
                 style={numberStyles}
+                className={className}
                 type='text'
                 value={number}
                 onFocus={numberOnFocus}
                 onBlur={numberOnBlur}
                 onChange={numberOnChange}
-                className={className}
-                {...props}
             />
         </div>
     );
@@ -129,12 +132,16 @@ CurrencyControl.propTypes = {
     atmMode: PropTypes.bool,
     decimalSeparator: PropTypes.string,
     fixedDecimalScale: PropTypes.number,
+    numberStyle: PropTypes.object,
     prefix: PropTypes.string,
+    prefixStyle: PropTypes.object,
     integerGroupType: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.bool
     ]),
-    integerGroupSeparator: PropTypes.string
+    integerGroupSeparator: PropTypes.string,
+    onValueChange: PropTypes.func,
+    className: PropTypes.string
 };
 
 CurrencyControl.displayName = 'CurrencyControl';
